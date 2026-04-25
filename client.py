@@ -62,7 +62,7 @@ def start_client():
         client_socket.send(message.encode())
 
         # Wait for the server's response and display it
-        response = client_socket.recv(1024).decode()
+        response = client_socket.recv(4096).decode()
         print(f"\nServer response: {response}\n")
 
     # Close the connection when done
