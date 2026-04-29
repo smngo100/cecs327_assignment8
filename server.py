@@ -10,27 +10,22 @@ from zoneinfo import ZoneInfo
 
 HOST = "0.0.0.0"
 
-# Replace with your actual Neon connection strings
 LOCAL_DATABASE_URL = "postgresql://neondb_owner:npg_Nqr2szKZOla8@ep-autumn-term-an4pvkxw-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
 PEER_DATABASE_URL = "postgresql://neondb_owner:npg_u1GTlNjaIR4D@ep-odd-breeze-am7dbemd-pooler.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
 
-# Exact UTC time when DataNiz sharing started
-# Example: "2026-04-20 18:30:00"
+
 SHARING_START_UTC_STR = "2026-04-20 18:30:00"
 
-# Pacific timezone for output formatting
 PACIFIC_TZ = ZoneInfo("America/Los_Angeles")
 
 # ============================================================
 # TABLE CONFIG
 # ============================================================
 
-# Your table
 LOCAL_TABLE_SCHEMA = "public"
 LOCAL_TABLE_NAME = "IoT_virtual"
 LOCAL_TABLE_CASE_SENSITIVE = True
 
-# Partner's table
 PEER_TABLE_SCHEMA = "public"
 PEER_TABLE_NAME = "sensor_data_virtual"
 PEER_TABLE_CASE_SENSITIVE = False
@@ -42,7 +37,6 @@ PEER_TABLE_CASE_SENSITIVE = False
 QUERY_1 = "what is the average moisture inside our kitchen fridges in the past hours, week and month?"
 QUERY_2 = "what is the average water consumption per cycle across our smart dishwashers in the past hour, week and month?"
 QUERY_3 = "which house consumed more electricity in the past 24 hours, and by how much?"
-
 
 
 # ============================================================
@@ -348,7 +342,6 @@ def process_electricity_comparison():
 
     rows = get_complete_sensor_dataset(start_utc, end_utc)
     partner_rows = [r for r in rows if r["house_id"] == "House B"]
-    print("TOTAL HOUSE B ROWS:", len(partner_rows))
 
     for r in partner_rows[:50]:
         print(
@@ -357,19 +350,14 @@ def process_electricity_comparison():
             "board:", r["board_name"],
             "topic:", r["payload_topic"]
         )
-        print("TOTAL RAW ROWS:", len(rows))
 
 
     electricity_rows = filter_electricity_rows(rows)
-    print("ELECTRICITY ROWS:", len(electricity_rows))
-    print("HOUSES FOUND:", set(r["house_id"] for r in electricity_rows))
 
     totals = {}
     for r in electricity_rows:
         house_id = r["house_id"]
         totals[house_id] = totals.get(house_id, 0.0) + abs(r["value"])
-
-    print("TOTALS:", totals)
 
     valid_totals = {k: v for k, v in totals.items() if k != "Unknown House"}
     print("VALID TOTALS:", valid_totals)
