@@ -325,12 +325,13 @@ def process_dishwasher_water():
         rows = get_complete_sensor_dataset(start_utc, end_utc)
         water_rows = filter_dishwasher_water_rows(rows)
 
+        LITERS_TO_GALLONS = 0.264172
         values = [r["value"] for r in water_rows]
         avg_value = average(values)
 
         lines.append(
             f"{label}: {avg_value:.2f} gallons/cycle "
-            f"(estimated from dishwasher water readings; "
+            f"(converted from L/min using x 0.264172; "
             f"window: {to_pacific_string(start_utc)} to {to_pacific_string(end_utc)})"
         )
 
