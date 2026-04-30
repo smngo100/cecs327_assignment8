@@ -14,8 +14,22 @@ def display_supported_queries():
     print()
 
 def is_valid_query(user_input):
-    """Check if the input matches one of the supported queries (case-insensitive)."""
-    return user_input.strip().lower() in [q.lower() for q in SUPPORTED_QUERIES]
+    """
+    Returns the full query string if the input is valid (number or full text),
+    or None if it is not recognized.
+    """
+    stripped = user_input.strip()
+
+    # Accept number shortcuts 1, 2, 3
+    if stripped in ("1", "2", "3"):
+        return SUPPORTED_QUERIES[int(stripped) - 1]
+
+    # Accept full query text (case-insensitive)
+    for query in SUPPORTED_QUERIES:
+        if stripped.lower() == query.lower():
+            return query
+
+    return None
 
 def start_client():
 
@@ -46,20 +60,22 @@ def start_client():
     # Keep sending messages until the user types "quit"
     while True:
 
-        message = input("Enter query (or 'quit' to exit): ").strip()
+        message = input("Enter query number (1-3) or full query text (or 'quit' to exit): ").strip()
 
         if message.lower() == "quit":
             print("Closing connection. Goodbye!")
             break
 
-        # Validate the query before sending
-        if not is_valid_query(message):
+        # Resolve number shortcut or full query text
+        resolved = is_valid_query(message)
+
+        if resolved is None:
             print("\nSorry, this query cannot be processed. Please try one of the supported queries.")
             display_supported_queries()
             continue
 
-        # Send the validated query to the server
-        client_socket.send(message.encode())
+        # Send the resolved full query to the server
+        client_socket.send(resolved.encode())
 
         # Wait for the server's response and display it
         response = client_socket.recv(4096).decode()
