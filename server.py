@@ -383,7 +383,6 @@ def process_electricity_comparison():
         f"{winner_house}: {winner_value:.2f}\n"
         f"{loser_house}: {loser_value:.2f}\n"
         f"Difference: {difference:.2f}\n"
-        f"Note: confirm the electricity unit from your sensor payload and document it in the report."
     )
 
 
