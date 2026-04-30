@@ -99,6 +99,18 @@ All query logic lives in `server.py`. For each query, the server:
 
 ---
 
+## Data Retrieval Flow
+
+The server connects to Neon PostgreSQL using the `psycopg2` library. The retrieval process is handled by three chained functions:
+
+1. **`get_connection(db_url)`** — opens a `psycopg2` connection to the given database URL using a `RealDictCursor`, so each returned row is a dictionary keyed by column name.
+
+2. **`fetch_sensor_rows(db_url, start_time_utc, end_time_utc, source)`** — executes a SQL `SELECT` against the appropriate table (`IoT_virtual` for local, `sensor_data_virtual` for peer), filtered by the time window. Each row's JSON `payload` field is then expanded: the function iterates over every key-value pair in the payload, skips non-numeric and metadata-only fields, and emits one flat dictionary per numeric reading (including house ID, device ID, board name, sensor name, value, and timestamp).
+
+3. **`get_complete_sensor_dataset(start_time_utc, end_time_utc)`** — orchestrates which database(s) to call. It always fetches from the local database first. If the query window predates the sharing start time, it additionally calls `fetch_sensor_rows` against the peer database for the missing sub-window `[start_time_utc, SHARING_START_UTC)`, then merges and deduplicates the two result sets before returning a single unified list of readings.
+
+---
+
 ## How House Ownership Is Preserved
 
 The function `determine_house_id()` in `server.py` inspects the `topic` field embedded in each row's JSON payload. If the topic contains:
